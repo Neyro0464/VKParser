@@ -2,18 +2,19 @@ import vk_api
 import requests
 from datetime import datetime 
 from dateutil.relativedelta import relativedelta
+from DBconn import connection
 
 
 # Укажите ваши данные для авторизации
 VK_TOKEN = '19ff385f19ff385f19ff385f901ade7549119ff19ff385f7eea6b22f6bc857365e56efc'
 VERSION = '5.199'
-GROUP_ID = '76582630'
+GROUP_ID = '99099155'
 NEWS_ID = '4430'
 # сдвиг по постам
 OFFSET = 0
 # Домен группы
 DOMAIN = 'incident_nsk'
-COUNT = 20
+COUNT = 30
 # Ключевые слова для поиска
 #Определить ключевые слова путем обработки текста
 wordFilt = {'Строительство': ['снос объекта', 'городская инфраструктура', 'городской инфраструктуры'], 
@@ -95,7 +96,7 @@ def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
     while not exitFlag:
         data = get_posts(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT)
         for post in data:
-            if datetime.fromtimestamp(post['date']) > datetime.today() - relativedelta(days=3):
+            if datetime.fromtimestamp(post['date']) > datetime.today() - relativedelta(days=4):
                 #post_id = int(post['id'])
                 print('ID поста: ', post['id'], ':::', group_info[0]['name'], ':::', f"https://vk.com/{group_info[0]['screen_name']}")
                 print('Ссылка на пост: ',f"https://vk.com/wall-{group_info[0]['id']}_{post['id']}")
@@ -117,8 +118,10 @@ def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
                 break
         OFFSET = OFFSET + COUNT
     print (counter_dict)
-                
+
+#connection()          
 parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT)
+
 # # Вывод комментариев
 #     for comment in comments:
 #         print(f"Comment ID: {comment['id']}")
