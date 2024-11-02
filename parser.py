@@ -24,7 +24,7 @@ wordFilt = {'Строительство': ['снос объекта', 'горо�
             'Социальная сфера':['больниц','поликлинник','роддом','школ'],
             'Соседство, среда проживания':['сосед','жител'],
             'Культура и общественные ценности':['защита прав','ценност','активисты против','активист против','поддержание традиц','культур'],
-            'Этнические и религиозные отношения':['между диаспорами','мигрант','цыган','национальност','хиджаб','миграц','националист',''],
+            'Этнические и религиозные отношения':['между диаспорами','мигрант','цыган','национальност','хиджаб','миграц','националист'],
             'Управление городом':['назначен','уволен','отстранен','отстранён','власт','начальник','город'],
             'Безопасность и правопорядок':['безопасно','правопорядо','коррупцион','субкульт']}
 
@@ -93,13 +93,16 @@ def get_posts(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
 # Для каждого поста выводим комментарии
 def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
     exitFlag = False
+    counter = 0
     while not exitFlag:
         data = get_posts(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT)
         for post in data:
-            if datetime.fromtimestamp(post['date']) > datetime.today() - relativedelta(days=4):
+            counter +=1
+            if datetime.fromtimestamp(post['date']) > datetime.today() - relativedelta(days=5):
                 #post_id = int(post['id'])
                 print('ID поста: ', post['id'], ':::', group_info[0]['name'], ':::', f"https://vk.com/{group_info[0]['screen_name']}")
-                print('Ссылка на пост: ',f"https://vk.com/wall-{group_info[0]['id']}_{post['id']}")
+                addres = f"https://vk.com/wall-{group_info[0]['id']}_{post['id']}"
+                print('Ссылка на пост: ', addres)
                 print('Дата выхода поста: ',datetime.fromtimestamp(post['date']), 'по нск', '\n')
                 #comments = parse_comments(owner_id, post_id)
                 if wordFilt: #Если список ключевых слов не пуст, то ищем каждое ключевое слово в тексте КАЖДОГО поста
@@ -108,8 +111,10 @@ def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
                             text = post['text'].casefold()
                             if word in text:
                                 counter_dict[key] += 1
+                                connection(post['id'], key, datetime.fromtimestamp(post['date']), group_info[0]['id'], addres, word)
                                 #print(post['text'])
                                 break
+                        print (key, counter_dict[key])
                 # else: #Если пуст, то выводим текст поста
                 #     print(post['text'])
                 print("-" * 40, '\n')
@@ -118,6 +123,7 @@ def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
                 break
         OFFSET = OFFSET + COUNT
     print (counter_dict)
+    print(counter)
 
 #connection()          
 parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT)
