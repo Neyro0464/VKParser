@@ -1,5 +1,7 @@
 import psycopg2
 
+#Создать три отдельных функции для каждой таблицы
+
 def connection(id, category, posted_at, group_id, addres, key_word):
     try:
         # пытаемся подключиться к базе данных
@@ -20,7 +22,7 @@ def connection(id, category, posted_at, group_id, addres, key_word):
         cursor.execute(query)
         check = cursor.fetchone()
         print(check)
-        if (check == None):
+        if (check == None): #Если такой id уже есть в базе, то не добавляем
             query = f'''INSERT INTO Posts(id, posted_at, group_id, addres) 
                         VALUES ({id},'{posted_at}',{group_id},'{addres}')'''
             cursor.execute(query)
