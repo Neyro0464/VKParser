@@ -4,19 +4,22 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from DBconn import connection
 
+#DOMAIN_LIST = ['incident_nsk', ...]
 
 # Укажите ваши данные для авторизации
 VK_TOKEN = '19ff385f19ff385f19ff385f901ade7549119ff19ff385f7eea6b22f6bc857365e56efc'
 VERSION = '5.199'
-GROUP_ID = '99099155'
-NEWS_ID = '4430'
-# сдвиг по постам
-OFFSET = 0
-# Домен группы
-DOMAIN = 'incident_nsk'
-COUNT = 30
+#GROUP_ID = '99099155'
+#NEWS_ID = '4430'
+
+#------------ПОЛЯ ДЛЯ ЗАПОЛНЕНИЯ------------
+OFFSET = 0 # сдвиг по постам
+DOMAIN = 'incident_nsk' # Домен группы
+COUNT = 30 # кол-во взятых постов за раз
+CITY = 'Новосибирск'
+#------------ПОЛЯ ДЛЯ ЗАПОЛНЕНИЯ------------
+
 # Ключевые слова для поиска
-#Определить ключевые слова путем обработки текста
 wordFilt = {'Строительство': ['снос объекта', 'городская инфраструктура', 'городской инфраструктуры'], 
             'Экология': ['деревьв', 'мусор', 'загрязнен'],
             'Экономика':['бюджет', 'тариф', 'цен', 'доход'],
@@ -28,6 +31,7 @@ wordFilt = {'Строительство': ['снос объекта', 'горо�
             'Управление городом':['назначен','уволен','отстранен','отстранён','власт','начальник','город'],
             'Безопасность и правопорядок':['безопасно','правопорядо','коррупцион','субкульт']}
 
+# Категории постов и счетчик по каждому из постов
 counter_dict = {'Строительство': 0, 
             'Экология': 0,
             'Экономика':0,
@@ -94,16 +98,21 @@ def get_posts(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
 def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
     exitFlag = False
     counter = 0
+    #for domain in domain_list???
     while not exitFlag:
         data = get_posts(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT)
         for post in data:
             counter +=1
-            if datetime.fromtimestamp(post['date']) > datetime.today() - relativedelta(days=5):
+            if datetime.fromtimestamp(post['date']) > datetime.today() - relativedelta(days=5): # пока дата поста больше требуемой, продолжаем
                 #post_id = int(post['id'])
+
+                #------------блок вывода информации в консоль------------
                 print('ID поста: ', post['id'], ':::', group_info[0]['name'], ':::', f"https://vk.com/{group_info[0]['screen_name']}")
                 addres = f"https://vk.com/wall-{group_info[0]['id']}_{post['id']}"
                 print('Ссылка на пост: ', addres)
                 print('Дата выхода поста: ',datetime.fromtimestamp(post['date']), 'по нск', '\n')
+                #------------блок вывода информации в консоль------------
+
                 #comments = parse_comments(owner_id, post_id)
                 if wordFilt: #Если список ключевых слов не пуст, то ищем каждое ключевое слово в тексте КАЖДОГО поста
                     for key in wordFilt.keys():
@@ -111,8 +120,10 @@ def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
                             text = post['text'].casefold()
                             if word in text:
                                 counter_dict[key] += 1
-                                connection(post['id'], key, datetime.fromtimestamp(post['date']), group_info[0]['id'], addres, word)
-                                #print(post['text'])
+                                # Подключение к базе и занос информации туда
+                                connection(post['id'], key, datetime.fromtimestamp(post['date']), 
+                                           group_info[0]['id'], addres, word, group_info[0]['name'], f"https://vk.com/{group_info[0]['screen_name']}", CITY)
+                                #print(post['text']) # вывод текста комментария
                                 break
                         print (key, counter_dict[key])
                 # else: #Если пуст, то выводим текст поста
