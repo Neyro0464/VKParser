@@ -14,6 +14,7 @@ def connection(post_id, category, posted_at, group_id, post_addres, key_word, gr
         # в случае сбоя подключения будет выведено сообщение в STDOUT
         print('Can`t establish connection to database')
 
+
     with conn.cursor() as cursor:
         conn.autocommit = True
         query = f'''SELECT DISTINCT id FROM VK_group WHERE id = {group_id}''' #ATTENTION!!!!
