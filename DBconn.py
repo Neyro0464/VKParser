@@ -27,7 +27,7 @@ def connection(post_id, category, posted_at, group_id, post_addres, key_word, gr
         cursor.execute(query)
         check = cursor.fetchone()
         print(check)
-        if (check == None): #Если такой id уже есть в базе, то не добавляем
+        if (check == None):
             query = f'''INSERT INTO Posts(id, posted_at, group_id, addres) 
                         VALUES ({post_id},'{posted_at}',{group_id},'{post_addres}')'''
             cursor.execute(query)
