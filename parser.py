@@ -9,6 +9,7 @@ from DBconn import connection
 # Укажите ваши данные для авторизации
 VK_TOKEN = '19ff385f19ff385f19ff385f901ade7549119ff19ff385f7eea6b22f6bc857365e56efc'
 VERSION = '5.199'
+
 #GROUP_ID = '99099155'
 #NEWS_ID = '4430'
 
@@ -84,6 +85,7 @@ wordFilt = {'Строительство': ['снос','отсутствие го
                                   'недовольство горожан', 'недовольство жителей', 'жители недовольны', 'неэффективные меры'],} 
 
 # Категории постов и счетчик по каждому из постов
+
 counter_dict = {'Строительство': 0, 
             'Экология': 0,
             'Экономика':0,
@@ -95,16 +97,8 @@ counter_dict = {'Строительство': 0,
             'Управление городом':0
             }
 
-# Авторизация
-vk_session = vk_api.VkApi(token=VK_TOKEN)
-vk = vk_session.get_api()
-# Получения сведений(id, name, screen_name) о сообществе по домену
-group_info = vk.groups.getById(group_ids=DOMAIN)
-# Получение id владельца сообщества
-owner_id = -int(group_info[0]['id'])  # Указываем ID сообщества с минусом
 
-
-# ------------||Работа с комментариями||----------------
+""" ------------||Работа с комментариями||----------------
 
 # Получение комментариев к новости
 def get_comments(owner_id, post_id, offset=0, count=100):
@@ -122,7 +116,7 @@ def parse_comments(owner_id, post_id):
         comments.extend(response['items'])
         offset += 100
     return comments
-# ------------||Работа с комментариями||----------------
+ ------------||Работа с комментариями||---------------- """
 
 
 #Добавить цикл который будет делать смещение постов пока не дойдет до нужной даты
@@ -141,11 +135,7 @@ def get_posts(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
     data = response2.json()['response']['items']
     return data
 
-
-
-#добавить запись в файл/ворд
-
-# Для каждого поста выводим комментарии
+# Основная функция для запуска парсера
 def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
     exitFlag = False
     counter = 0
@@ -158,9 +148,10 @@ def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
                 #post_id = int(post['id'])
 
                 #------------блок вывода информации в консоль------------
+
                 print('ID поста: ', post['id'], ':::', group_info[0]['name'], ':::', f"https://vk.com/{group_info[0]['screen_name']}")
-                addres = f"https://vk.com/wall-{group_info[0]['id']}_{post['id']}"
-                print('Ссылка на пост: ', addres)
+                post_addres = f"https://vk.com/wall-{group_info[0]['id']}_{post['id']}"
+                print('Ссылка на пост: ', post_addres)
                 print('Дата выхода поста: ',datetime.fromtimestamp(post['date']), 'по нск', '\n')
                 #------------блок вывода информации в консоль------------
 
@@ -179,20 +170,13 @@ def parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT):
                         print (key, counter_dict[key])
                 # else: #Если пуст, то выводим текст поста
                 #     print(post['text'])
+
                 print("-" * 40, '\n')
             else:
                 exitFlag = True
                 break
         OFFSET = OFFSET + COUNT
     print (counter_dict)
-    print(counter)
 
-#connection()          
+#Запуск
 parse_wall(VK_TOKEN, VERSION, DOMAIN, OFFSET, COUNT)
-
-# # Вывод комментариев
-#     for comment in comments:
-#         print(f"Comment ID: {comment['id']}")
-#         print(f"Author: {comment['from_id']}")
-#         print(f"Text: {comment['text']}")
-#         print("-" * 40)
