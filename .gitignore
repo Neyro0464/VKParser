@@ -1,1 +1,7 @@
-/__pycache__
+\__pycache__
+*.xlsx
+*.xls
+*.csv
+*.рус
+config.py
+*.session
