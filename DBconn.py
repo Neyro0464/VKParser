@@ -16,8 +16,7 @@ def connection():
     conn.autocommit = True
     return conn
 
-
-def DB_Insert(conn, post_id, category, posted_at, group_id, post_addres, key_word, comment):
+def insert_post_info(conn, post_id, category, posted_at, group_id, post_addres, key_word, comment):
     with conn.cursor() as cursor:
         query = f'''SELECT DISTINCT id FROM posts WHERE id = {post_id}'''
         cursor.execute(query)
@@ -30,18 +29,20 @@ def DB_Insert(conn, post_id, category, posted_at, group_id, post_addres, key_wor
                     VALUES ('{post_id}','{category}','{key_word}')'''
         cursor.execute(query)
 
-def DB_Insert_group(group_id, group_name, group_addres, group_city):
-    conn =connection()
+
+def insert_group_info(conn, group_id, group_name, group_addres, group_city):
     with conn.cursor() as cursor:
-        query = f'''SELECT DISTINCT id FROM VK_group WHERE id = {group_id}''' #ATTENTION!!!!
+        query = f'''SELECT DISTINCT id FROM SMGroups WHERE id = {group_id}''' #ATTENTION!!!!
         cursor.execute(query)
         check = cursor.fetchone()
         if(check == None):
-            query = f'''INSERT INTO Vk_group(id, name, addres, city) VALUES ({group_id},'{group_name}','{group_addres}','{group_city}')'''
+            if group_city == 'NULL':
+                query = f'''INSERT INTO SMGroups(id, name, addres, city) VALUES ({group_id},'{group_name}','{group_addres}', '')'''
+            else: 
+                query = f'''INSERT INTO SMGroups(id, name, addres, city) VALUES ({group_id},'{group_name}','{group_addres}','{group_city}')'''
             cursor.execute(query)
     cursor.close()
-    conn.close()
-    print('Connection closed')
+
 
 def disconnect(conn):
     if conn:
